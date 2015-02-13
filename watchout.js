@@ -12,11 +12,13 @@ var padding = 20;
 
 // *Axes
 
-var x = d3.scale.linear().domain([0,100]).range([0,gameWidth]);
-var y = d3.scale.linear().domain([0,100]).range([0,gameHeight]);
+var axes = {
+  x : d3.scale.linear().domain([0,100]).range([0,gameWidth]),
+  y : d3.scale.linear().domain([0,100]).range([0,gameHeight])
+};
 
 // *Set up board as svg region
-d3.select(".board").append(svg:svg)
+d3.select(".board").append('svg:svg')
   .attr('width', gameWidth)
   .attr('height', gameHeight);
 
@@ -28,8 +30,36 @@ d3.select(".board").append(svg:svg)
   //
 
 // *Enemies
+var Enemy = function(){
+  this.x = Math.random() * 100;
+  this.y = Math.random() * 100;
+  this.id = Enemy.prototype.count++;
+}
 
+Enemy.prototype.count = 0;
+
+var newEnemies = [];
+for (var e = 0; e < nEnemies; e++){
+  newEnemies.push(new Enemy());
+}
 
 // *Render board
+var enemies = d3.select("svg").selectAll(".enemy")
+  .data(newEnemies, function(e){return e.id});
 
+enemies.enter()
+  .append('svg:circle')
+  .attr('class','enemy')
+  .attr('cx', function( enemy ){ return axes.x(enemy.x); })
+  .attr('cy', function( enemy ){ return axes.y(enemy.y); })
+  .attr('r', 0)
+  .transition().duration(200).attr('r', 10)
 // Play the game
+
+var play = function(){
+  var gameTurn = function (){
+
+  }
+};
+
+play();
