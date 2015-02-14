@@ -29,37 +29,13 @@ d3.select(".board").append('svg:svg')
 // Scoreboard
 
 // Player
-var Player = function(){
-  this.x = 50;
-  this.y = 50;
+var Player = function(x, y){
+  this.x = x;
+  this.y = y;
  // this.angle;
   this.r = 5;
 
 }
-
-Player.prototype.setX = function (x) {
-  var minX = gameOptions.padding;
-  var maxX = gameOptions.width - gameOptions.padding;
-  if ( x < minX ) {
-    this.x = minX;
-  } else if ( x > maxX ) {
-    this.x = maxX;
-  } else {
-    this.x = x;
-  }
-};
-
-Player.prototype.setY = function (y) {
-  var minY = gameOptions.padding;
-  var maxY = gameOptions.height - gameOptions.padding;
-  if ( y < minY ) {
-    this.y = minY;
-  } else if ( y > maxY ) {
-    this.y = maxY;
-  } else {
-    this.y = y;
-  }
-};
 
 Player.prototype.moveRelative = function(dx, dy) {
   console.log('mRel');
@@ -70,42 +46,6 @@ Player.prototype.moveRelative = function(dx, dy) {
     .attr('cy', function( p ){return axes.y(p.y); });
 };
 
-// Player.prototype.setupDragging = function() {
-//   console.log('drag');
-//   d3.behavior.drag().on('drag', function() {
-//     console.log('dMv');
-//     moveRelative(d3.event.dx, d3.event.dy);
-//   })
-// };
-
-// var drag = d3.behavior.drag()
-//     .on('drag', function() {
-//       console.log('dMv');
-//       moveRelative(d3.event.dx, d3.event.dy);
-//   });
-
-// var whee = function(d) {
-//       console.log('wheee');
-//}
-
-// var dragged = function (d){
-//   player.attr('style', 'fill: red');
-// }
-
-
-var draaag = function(d){
-  d3.select(this)
-    .attr("cx", d.x = d3.event.dx);
-
-}
-
-  var drag = d3.behavior.drag()
-    .origin(function(d) { return d; })
-    .on('drag', draaag);
-    // console.log('draaaaag');
-    // player.attr('style', 'fill: red')
-
-
 Player.prototype.initialize = function() {
 
   var player = d3.select("svg").selectAll(".player")
@@ -115,20 +55,51 @@ Player.prototype.initialize = function() {
     .append('svg:circle')
     .attr('class','player')
     .attr('style', 'fill: blue')
-    .attr('cx', function( p ){return axes.x(p.x); })
-    .attr('cy', function( p ){return axes.y(p.y); })
+    .attr('cx', function( p ){return p.x; })
+    .attr('cy', function( p ){return p.y; })
     .attr('r', 0)
-    .transition().duration(1200).attr('r', 10)
-    // .on("drag", drag); //('drag', whee)
+    .transition().duration(1200).attr('r', 10);
+
+  var drag = d3.behavior.drag()
+    .origin(function(d) { return d; })
+    .on('drag', function(d){
+
+      // check bounds
+      d.x = boundX(d.x + d3.event.dx);
+      d.y = boundY(d.y + d3.event.dy);
+
+      console.log('x: ', d.x, ' y: ', d.y);
+
+      d3.select(this)
+        .attr("cx", d.x)
+        .attr("cy", d.y)
+    });
 
   player.call(drag);
-    // .call(drag);
-
-
-  // this.setupDragging();
 };
 
-
+var boundX = function (x) {
+  var minX = gameOptions.padding;
+  var maxX = gameOptions.width - gameOptions.padding;
+  if ( x < minX ) {
+    return minX;
+  } else if ( x > maxX ) {
+    return maxX;
+  } else {
+    return x;
+  }
+};
+var boundY = function (y) {
+  var minY = gameOptions.padding;
+  var maxY = gameOptions.height - gameOptions.padding;
+  if ( y < minY ) {
+    return minY;
+  } else if ( y > maxY ) {
+    return maxY;
+  } else {
+    return y;
+  }
+};
 
 // *Enemies
 var Enemy = function(){
@@ -169,19 +140,14 @@ var render = function() {
     .attr('cy', function( enemy ){ return axes.y(enemy.y); })
     .attr('r', 0)
     .transition().duration(200).attr('r', 10);
-
-
 }
-// Play the game
 
+// Play the game
 var play = function(){
-  var playerObj = new Player();
+  var playerObj = new Player(axes.x(50), axes.y(50));
 
   playerObj.initialize();
 
-  // playerObj.on("drag", function(){
-
-  // })
   var gameTurn = function (){
     render();
     // create new enemies array
