@@ -70,14 +70,41 @@ Player.prototype.moveRelative = function(dx, dy) {
     .attr('cy', function( p ){return axes.y(p.y); });
 };
 
-Player.prototype.setupDragging = function() {
-  console.log('drag');
-  d3.behavior.drag()
-    .on('drag', function() {
-      console.log('dMv');
-      moveRelative(d3.event.dx, d3.event.dy);
-  });
-};
+// Player.prototype.setupDragging = function() {
+//   console.log('drag');
+//   d3.behavior.drag().on('drag', function() {
+//     console.log('dMv');
+//     moveRelative(d3.event.dx, d3.event.dy);
+//   })
+// };
+
+// var drag = d3.behavior.drag()
+//     .on('drag', function() {
+//       console.log('dMv');
+//       moveRelative(d3.event.dx, d3.event.dy);
+//   });
+
+// var whee = function(d) {
+//       console.log('wheee');
+//}
+
+// var dragged = function (d){
+//   player.attr('style', 'fill: red');
+// }
+
+
+var draaag = function(d){
+  d3.select(this)
+    .attr("cx", d.x = d3.event.dx);
+
+}
+
+  var drag = d3.behavior.drag()
+    .origin(function(d) { return d; })
+    .on('drag', draaag);
+    // console.log('draaaaag');
+    // player.attr('style', 'fill: red')
+
 
 Player.prototype.initialize = function() {
 
@@ -91,10 +118,16 @@ Player.prototype.initialize = function() {
     .attr('cx', function( p ){return axes.x(p.x); })
     .attr('cy', function( p ){return axes.y(p.y); })
     .attr('r', 0)
-    .transition().duration(1200).attr('r', 10);
+    .transition().duration(1200).attr('r', 10)
+    // .on("drag", drag); //('drag', whee)
 
-  this.setupDragging();
+  player.call(drag);
+    // .call(drag);
+
+
+  // this.setupDragging();
 };
+
 
 
 // *Enemies
@@ -143,7 +176,9 @@ var render = function() {
 
 var play = function(){
   var playerObj = new Player();
+
   playerObj.initialize();
+
   // playerObj.on("drag", function(){
 
   // })
