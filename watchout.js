@@ -15,7 +15,7 @@ var gameStats = {
   bestScore: 0,
   score: 0,
   collisions: 0,
-  // colliding: false
+  prevCollision: false
 }
 
 // Setup the game board
@@ -30,7 +30,8 @@ var axes = {
 // Set up board as svg region
 d3.select(".board").append('svg:svg')
   .attr('width', gameOptions.width)
-  .attr('height', gameOptions.height);
+  .attr('height', gameOptions.height)
+  .style("border", "red 2px solid");
 
 
 // Scoreboard
@@ -151,41 +152,54 @@ var render = function() {
     .attr('y', function( enemy ){ return axes.y(enemy.y); })
 }
 
+
+
 var checkCollisions = function() {
+  var collision = false;
   d3.select("svg").selectAll(".enemy").each(function() {
     var enemy = d3.select(this);
     var player = d3.select("svg").selectAll(".player");
     var dist = calcDistance(enemy.attr("x"), enemy.attr("y"), player.attr("cx"), player.attr("cy"));
     if (dist < 10 + Number(player.attr("r"))) {
-      // console.log("data-colliding: " + player.attr('data-colliding'));
-      // if (player.attr('data-colliding') === false) {
-        // console.log("HIT");
-        gameStats.bestScore = Math.max(gameStats.score, gameStats.bestScore);
-        gameStats.score = 0;
-        gameStats.collisions++;
-      // }
-      // player.attr('data-colliding', true);
-    } else {
-      // player.attr('data-colliding', false)
+      collision = true;
     }
-
-    var scoreBoard = d3.selectAll(".scoreboard");
-    scoreBoard.selectAll(".high").selectAll("span")
-      .text(gameStats.bestScore);
-
-    scoreBoard.selectAll(".current").selectAll("span")
-      .text(gameStats.score);
-
-    scoreBoard.selectAll(".collisions").selectAll("span")
-      .text(gameStats.collisions);
-
-    gameStats.score++;
-
   });
+
+  if (collision) {
+    gameStats.score = 0;
+    d3.select("svg").style("background-color", "black");
+
+    if (!gameStats.prevCollision) {
+      gameStats.collisions++;
+    }
+  } else {
+    d3.select("svg").style("background-color", "white");
+  }
+
+  //gameStats.prevCollision = true;
+  gameStats.prevCollision = collision;
+
 };
+
+d3.timer(checkCollisions);
 
 var calcDistance = function(x1, y1, x2, y2) {
   return Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+};
+
+var calcScore = function() {
+    var scoreBoard = d3.selectAll(".scoreboard");
+    scoreBoard.selectAll(".high span")
+      .text(gameStats.bestScore);
+
+    scoreBoard.selectAll(".current span")
+      .text(gameStats.score);
+
+    scoreBoard.selectAll(".collisions span")
+      .text(gameStats.collisions);
+
+    gameStats.score++;
+    gameStats.bestScore = Math.max(gameStats.score, gameStats.bestScore);
 };
 
 // Play the game
@@ -200,7 +214,7 @@ var play = function(){
   };
 
   // make gameTurn occur every few seconds
-  setInterval(checkCollisions, 10);
+  setInterval(calcScore, 100);
   setInterval(gameTurn, 1000);
 };
 
