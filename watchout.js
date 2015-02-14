@@ -1,10 +1,13 @@
 // start slingin' some d3 here.
 
 // *Setup the environment
-var gameHeight = 450;
-var gameWidth = 700;
-var nEnemies = 30;
-var padding = 20;
+var gameOptions = {
+  height: 450,
+  width: 700,
+  nEnemies: 2,//30,
+  padding: 20
+
+}
 
 //score
 
@@ -13,21 +16,54 @@ var padding = 20;
 // *Axes
 
 var axes = {
-  x : d3.scale.linear().domain([0,100]).range([0,gameWidth]),
-  y : d3.scale.linear().domain([0,100]).range([0,gameHeight])
+  x : d3.scale.linear().domain([0,100]).range([0,gameOptions.width]),
+  y : d3.scale.linear().domain([0,100]).range([0,gameOptions.height])
 };
 
 // *Set up board as svg region
 d3.select(".board").append('svg:svg')
-  .attr('width', gameWidth)
-  .attr('height', gameHeight);
+  .attr('width', gameOptions.width)
+  .attr('height', gameOptions.height);
 
 
 // Scoreboard
 
 // Player
-  //  sgv class
-  //
+var Player = function(){
+  this.x = 50;
+  this.y = 50;
+ // this.angle;
+  this.r = 5;
+
+}
+
+Player.prototype.setX = function (x) {
+  var minX = gameOptions.padding;
+  var maxX = gameOptions.width - gameOptions.padding;
+  if ( x < minX ) {
+    this.x = minX;
+  } else if ( x > maxX ) {
+    this.x = maxX;
+  } else {
+    this.x = x;
+  }
+};
+
+Player.prototype.setY = function (y) {
+  var minY = gameOptions.padding;
+  var maxY = gameOptions.height - gameOptions.padding;
+  if ( y < minY ) {
+    this.y = minY;
+  } else if ( y > maxY ) {
+    this.y = maxY;
+  } else {
+    this.y = y;
+  }
+};
+
+var playerObj = new Player();
+
+
 
 // *Enemies
 var Enemy = function(){
@@ -42,20 +78,20 @@ Enemy.prototype.reposition = function() {
   this.y = Math.random() * 100;
 };
 
-var newEnemies = [];
-for (var e = 0; e < nEnemies; e++){
-  newEnemies.push(new Enemy());
+var enemyObjs = [];
+for (var e = 0; e < gameOptions.nEnemies; e++){
+  enemyObjs.push(new Enemy());
 }
 
 // *Render board
 var render = function() {
 
-  for (var i = 0; i < newEnemies.length; i++) {
-    newEnemies[i].reposition();
+  for (var i = 0; i < enemyObjs.length; i++) {
+    enemyObjs[i].reposition();
   }
 
   var enemies = d3.select("svg").selectAll(".enemy")
-    .data(newEnemies, function(e){return e.id});
+    .data(enemyObjs, function(e){return e.id});
 
   enemies.transition().duration(200)
     .attr('cx', function( enemy ){ return axes.x(enemy.x); })
@@ -68,6 +104,19 @@ var render = function() {
     .attr('cy', function( enemy ){ return axes.y(enemy.y); })
     .attr('r', 0)
     .transition().duration(200).attr('r', 10);
+
+  var player = d3.select("svg").selectAll(".player")
+    .data([playerObj]);
+
+  player.enter()
+    .append('svg:circle')
+    .attr('class','player')
+    .attr('style', 'fill: blue')
+    .attr('cx', function( p ){return axes.x(p.x); })
+    .attr('cy', function( p ){return axes.y(p.y); })
+    .attr('r', 0)
+    .transition().duration(200).attr('r', 10);
+
 }
 // Play the game
 
