@@ -1,6 +1,6 @@
 // start slingin' some d3 here.
 
-// *Setup the environment
+// Setup the environment
 var gameOptions = {
   height: 450,
   width: 700,
@@ -9,31 +9,32 @@ var gameOptions = {
 
 }
 
-
-
 //score
 
 var gameStats = {
+  bestScore: 0,
   score: 0,
-  bestScore: 0
+  collisions: 0,
+  // colliding: false
 }
 
-// *Setup the game board
+// Setup the game board
 
-// *Axes
+// Axes
 
 var axes = {
   x : d3.scale.linear().domain([0,100]).range([0,gameOptions.width]),
   y : d3.scale.linear().domain([0,100]).range([0,gameOptions.height])
 };
 
-// *Set up board as svg region
+// Set up board as svg region
 d3.select(".board").append('svg:svg')
   .attr('width', gameOptions.width)
   .attr('height', gameOptions.height);
 
 
 // Scoreboard
+
 
 // Player
 var Player = function(x, y){
@@ -65,6 +66,7 @@ Player.prototype.initialize = function() {
     .attr('cx', function( p ){return p.x; })
     .attr('cy', function( p ){return p.y; })
     .attr('r', 0)
+    // .attr('data-colliding', false)
     .transition().duration(1200).attr('r', 10);
 
   var drag = d3.behavior.drag()
@@ -158,11 +160,30 @@ var checkCollisions = function() {
     var dist = calcDistance(enemy.attr("cx"), enemy.attr("cy"), player.attr("cx"), player.attr("cy"));
     //console.log("dist: " + dist);
     if (dist < (Number(enemy.attr("r")) + Number(player.attr("r")))) {
-      console.log("Direct hit!");
-      gameStats.score++;
-      console.log(gameStats.score);
-
+      // console.log("data-colliding: " + player.attr('data-colliding'));
+      // if (player.attr('data-colliding') === false) {
+        // console.log("HIT");
+        gameStats.bestScore = Math.max(gameStats.score, gameStats.bestScore);
+        gameStats.score = 0;
+        gameStats.collisions++;
+      // }
+      // player.attr('data-colliding', true);
+    } else {
+      // player.attr('data-colliding', false)
     }
+
+    var scoreBoard = d3.selectAll(".scoreboard");
+    scoreBoard.selectAll(".high").selectAll("span")
+      .text(gameStats.bestScore);
+
+    scoreBoard.selectAll(".current").selectAll("span")
+      .text(gameStats.score);
+
+    scoreBoard.selectAll(".collisions").selectAll("span")
+      .text(gameStats.collisions);
+
+    gameStats.score++;
+
   });
 };
 
@@ -194,7 +215,7 @@ var play = function(){
   };
 
   // make gameTurn occur every few seconds
-  setInterval(checkCollisions, 1);
+  setInterval(checkCollisions, 10);
   setInterval(gameTurn, 1000);
 };
 
