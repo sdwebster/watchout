@@ -61,8 +61,40 @@ Player.prototype.setY = function (y) {
   }
 };
 
-var playerObj = new Player();
+Player.prototype.moveRelative = function(dx, dy) {
+  console.log('mRel');
+  this.setX(this.x + dx);
+  this.setY(this.y + dy);
+  d3.select("svg").selectAll(".player").data([this])
+    .attr('cx', function( p ){return axes.x(p.x); })
+    .attr('cy', function( p ){return axes.y(p.y); });
+};
 
+Player.prototype.setupDragging = function() {
+  console.log('drag');
+  d3.behavior.drag()
+    .on('drag', function() {
+      console.log('dMv');
+      moveRelative(d3.event.dx, d3.event.dy);
+  });
+};
+
+Player.prototype.initialize = function() {
+
+  var player = d3.select("svg").selectAll(".player")
+    .data([this]);
+
+  player.enter()
+    .append('svg:circle')
+    .attr('class','player')
+    .attr('style', 'fill: blue')
+    .attr('cx', function( p ){return axes.x(p.x); })
+    .attr('cy', function( p ){return axes.y(p.y); })
+    .attr('r', 0)
+    .transition().duration(1200).attr('r', 10);
+
+  this.setupDragging();
+};
 
 
 // *Enemies
@@ -105,22 +137,16 @@ var render = function() {
     .attr('r', 0)
     .transition().duration(200).attr('r', 10);
 
-  var player = d3.select("svg").selectAll(".player")
-    .data([playerObj]);
-
-  player.enter()
-    .append('svg:circle')
-    .attr('class','player')
-    .attr('style', 'fill: blue')
-    .attr('cx', function( p ){return axes.x(p.x); })
-    .attr('cy', function( p ){return axes.y(p.y); })
-    .attr('r', 0)
-    .transition().duration(200).attr('r', 10);
 
 }
 // Play the game
 
 var play = function(){
+  var playerObj = new Player();
+  playerObj.initialize();
+  // playerObj.on("drag", function(){
+
+  // })
   var gameTurn = function (){
     render();
     // create new enemies array
