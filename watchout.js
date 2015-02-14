@@ -4,12 +4,19 @@
 var gameOptions = {
   height: 450,
   width: 700,
-  nEnemies: 2,//30,
+  nEnemies: 30,
   padding: 20
 
 }
 
+
+
 //score
+
+var gameStats = {
+  score: 0,
+  bestScore: 0
+}
 
 // *Setup the game board
 
@@ -68,8 +75,6 @@ Player.prototype.initialize = function() {
       d.x = boundX(d.x + d3.event.dx);
       d.y = boundY(d.y + d3.event.dy);
 
-      console.log('x: ', d.x, ' y: ', d.y);
-
       d3.select(this)
         .attr("cx", d.x)
         .attr("cy", d.y)
@@ -105,6 +110,7 @@ var boundY = function (y) {
 var Enemy = function(){
   this.x = Math.random() * 100;
   this.y = Math.random() * 100;
+  this.r = 10;
   this.id = Enemy.prototype.count++;
 }
 
@@ -142,14 +148,43 @@ var render = function() {
     .transition().duration(200).attr('r', 10);
 }
 
+var checkCollisions = function() {
+  d3.select("svg").selectAll(".enemy").each(function(e) {
+    // console.log(e.x, ', ', e.y);
+    var player = d3.select("svg").selectAll(".player");
+    // console.log("player.x: " + player.attr("cx"));
+    // console.log("player.y: " + player.attr("cy"));
+    var dist = calcDistance(axes.x(e.x), axes.y(e.y), player.attr("cx"), player.attr("cy"));
+    //console.log("dist: " + dist);
+    if (dist < (Number(e.r) + Number(player.attr("r")))) {
+      console.log("Direct hit!");
+      gameStats.score++;
+      console.log(gameStats.score);
+
+    }
+  });
+};
+
+var calcDistance = function(x1, y1, x2, y2) {
+  return Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+};
+
 // Play the game
 var play = function(){
   var playerObj = new Player(axes.x(50), axes.y(50));
 
   playerObj.initialize();
 
+  // d3.select('svg').append("rect")
+  //   .attr("height", 100)
+  //   .attr("width", 100)
+  //   .attr("x", 10)
+  //   .attr("y", 10)
+  //   .attr("fill", "green");
+
   var gameTurn = function (){
     render();
+    //checkCollisions();
     // create new enemies array
     // move enemies
     // look for collisions
@@ -158,6 +193,7 @@ var play = function(){
   };
 
   // make gameTurn occur every few seconds
+  setInterval(checkCollisions, 1);
   setInterval(gameTurn, 1000);
 };
 
