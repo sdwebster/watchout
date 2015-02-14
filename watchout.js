@@ -149,14 +149,15 @@ var render = function() {
 }
 
 var checkCollisions = function() {
-  d3.select("svg").selectAll(".enemy").each(function(e) {
+  d3.select("svg").selectAll(".enemy").each(function() {
     // console.log(e.x, ', ', e.y);
+    var enemy = d3.select(this);
     var player = d3.select("svg").selectAll(".player");
     // console.log("player.x: " + player.attr("cx"));
     // console.log("player.y: " + player.attr("cy"));
-    var dist = calcDistance(axes.x(e.x), axes.y(e.y), player.attr("cx"), player.attr("cy"));
+    var dist = calcDistance(enemy.attr("cx"), enemy.attr("cy"), player.attr("cx"), player.attr("cy"));
     //console.log("dist: " + dist);
-    if (dist < (Number(e.r) + Number(player.attr("r")))) {
+    if (dist < (Number(enemy.attr("r")) + Number(player.attr("r")))) {
       console.log("Direct hit!");
       gameStats.score++;
       console.log(gameStats.score);
