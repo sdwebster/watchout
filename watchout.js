@@ -37,6 +37,10 @@ var Enemy = function(){
 }
 
 Enemy.prototype.count = 0;
+Enemy.prototype.reposition = function() {
+  this.x = Math.random() * 100;
+  this.y = Math.random() * 100;
+};
 
 var newEnemies = [];
 for (var e = 0; e < nEnemies; e++){
@@ -44,22 +48,41 @@ for (var e = 0; e < nEnemies; e++){
 }
 
 // *Render board
-var enemies = d3.select("svg").selectAll(".enemy")
-  .data(newEnemies, function(e){return e.id});
+var render = function() {
 
-enemies.enter()
-  .append('svg:circle')
-  .attr('class','enemy')
-  .attr('cx', function( enemy ){ return axes.x(enemy.x); })
-  .attr('cy', function( enemy ){ return axes.y(enemy.y); })
-  .attr('r', 0)
-  .transition().duration(200).attr('r', 10)
+  for (var i = 0; i < newEnemies.length; i++) {
+    newEnemies[i].reposition();
+  }
+
+  var enemies = d3.select("svg").selectAll(".enemy")
+    .data(newEnemies, function(e){return e.id});
+
+  enemies.transition().duration(200)
+    .attr('cx', function( enemy ){ return axes.x(enemy.x); })
+    .attr('cy', function( enemy ){ return axes.y(enemy.y); });
+
+  enemies.enter()
+    .append('svg:circle')
+    .attr('class','enemy')
+    .attr('cx', function( enemy ){ return axes.x(enemy.x); })
+    .attr('cy', function( enemy ){ return axes.y(enemy.y); })
+    .attr('r', 0)
+    .transition().duration(200).attr('r', 10);
+}
 // Play the game
 
 var play = function(){
   var gameTurn = function (){
+    render();
+    // create new enemies array
+    // move enemies
+    // look for collisions
 
-  }
+
+  };
+
+  // make gameTurn occur every few seconds
+  setInterval(gameTurn, 1000);
 };
 
 play();
