@@ -4,7 +4,7 @@
 var gameOptions = {
   height: 450,
   width: 700,
-  nEnemies: 30,
+  nEnemies: 1,
   padding: 20
 
 }
@@ -31,7 +31,7 @@ var axes = {
 d3.select(".board").append('svg:svg')
   .attr('width', gameOptions.width)
   .attr('height', gameOptions.height)
-  .style("border", "red 2px solid");
+  .style("border", "#8F4700 5px solid");
 
 
 // Scoreboard
@@ -146,10 +146,14 @@ var render = function() {
     .append('image')
     .attr('class','enemy')
     .attr('xlink:href', 'NickCage.png')
-    .attr('height', '30px')
-    .attr('width', '30px')
+    .attr('height', '60px')
+    .attr('width', '60px')
     .attr('x', function( enemy ){ return axes.x(enemy.x); })
     .attr('y', function( enemy ){ return axes.y(enemy.y); })
+
+  enemies.exit().remove();
+
+  //  .attr('height', '100px');
 }
 
 
@@ -160,20 +164,24 @@ var checkCollisions = function() {
     var enemy = d3.select(this);
     var player = d3.select("svg").selectAll(".player");
     var dist = calcDistance(enemy.attr("x"), enemy.attr("y"), player.attr("cx"), player.attr("cy"));
-    if (dist < 10 + Number(player.attr("r"))) {
+    if (dist < 30 + Number(player.attr("r"))) {
       collision = true;
+      if (!gameStats.prevCollision) {
+        enemyObjs.splice(enemyObjs.indexOf(enemy),1);
+        gameOptions.nEnemies--;
+      }
     }
   });
 
   if (collision) {
     gameStats.score = 0;
-    d3.select("svg").style("background-color", "black");
+    d3.select("svg").style("background-color", '#CC00CC');
 
     if (!gameStats.prevCollision) {
       gameStats.collisions++;
     }
   } else {
-    d3.select("svg").style("background-color", "white");
+    d3.select("svg").style("background-color", '#30FFAC');
   }
 
   //gameStats.prevCollision = true;
@@ -200,6 +208,14 @@ var calcScore = function() {
 
     gameStats.score++;
     gameStats.bestScore = Math.max(gameStats.score, gameStats.bestScore);
+
+    console.log("nEnemies: " + gameOptions.nEnemies);
+
+    if (gameStats.score > (gameOptions.nEnemies * 50)) {
+      enemyObjs.push(new Enemy());
+      gameOptions.nEnemies++;
+      console.log("More Cages!");
+    }
 };
 
 // Play the game
