@@ -41,13 +41,11 @@ d3.select(".board").append('svg:svg')
 var Player = function(x, y){
   this.x = x;
   this.y = y;
- // this.angle;
   this.r = 5;
 
 }
 
 Player.prototype.moveRelative = function(dx, dy) {
-  console.log('mRel');
   this.setX(this.x + dx);
   this.setY(this.y + dy);
   d3.select("svg").selectAll(".player").data([this])
@@ -67,7 +65,6 @@ Player.prototype.initialize = function() {
     .attr('cx', function( p ){return p.x; })
     .attr('cy', function( p ){return p.y; })
     .attr('r', 0)
-    // .attr('data-colliding', false)
     .transition().duration(1200).attr('r', 10);
 
   var drag = d3.behavior.drag()
@@ -139,8 +136,8 @@ var render = function() {
     .data(enemyObjs, function(e){return e.id});
 
   enemies.transition().duration(800)
-    .attr('x', function( enemy ){ return axes.x(enemy.x); })
-    .attr('y', function( enemy ){ return axes.y(enemy.y); });
+    .attr('x', function( enemy ){ return axes.x(enemy.x) - 30; })
+    .attr('y', function( enemy ){ return axes.y(enemy.y) - 30; });
 
   enemies.enter()
     .append('image')
@@ -212,12 +209,9 @@ var calcScore = function() {
     gameStats.score++;
     gameStats.bestScore = Math.max(gameStats.score, gameStats.bestScore);
 
-    console.log("nEnemies: " + gameOptions.nEnemies);
-
     if (gameStats.score > (gameOptions.nEnemies * 50)) {
       enemyObjs.push(new Enemy());
       gameOptions.nEnemies++;
-      console.log("More Cages!");
     }
 };
 
