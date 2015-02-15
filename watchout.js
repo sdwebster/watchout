@@ -138,7 +138,7 @@ var render = function() {
   var enemies = d3.select("svg").selectAll(".enemy")
     .data(enemyObjs, function(e){return e.id});
 
-  enemies.transition().duration(200)
+  enemies.transition().duration(800)
     .attr('x', function( enemy ){ return axes.x(enemy.x); })
     .attr('y', function( enemy ){ return axes.y(enemy.y); });
 
@@ -205,6 +205,9 @@ var calcScore = function() {
 
     scoreBoard.selectAll(".collisions span")
       .text(gameStats.collisions);
+
+    scoreBoard.selectAll(".nEnemies span")
+      .text(gameOptions.nEnemies);
 
     gameStats.score++;
     gameStats.bestScore = Math.max(gameStats.score, gameStats.bestScore);
